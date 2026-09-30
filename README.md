@@ -1,0 +1,138 @@
+# Contract
+
+A supplier sourcing and rating platform for general contractors.
+
+## Overview
+
+Contract helps general contractors manage their material suppliers in one place instead of scattered spreadsheets, phone calls, and text messages. A contractor imports the supplier list they already keep, compares real quotes side by side for any project, and sees which suppliers actually deliver on time and on budget, backed by their own team's past experience with them.
+
+This repository holds the product requirements, business plan, and diagrams for Contract, a class project for a software engineering course.
+
+## The Problem
+
+Materials make up 40 to 60 percent of a construction project's cost, but general contractors only keep a 2 to 5 percent profit margin, so a single sourcing mistake can wipe out the margin. Contractors still coordinate purchasing through disconnected spreadsheets and unrecorded phone calls, and audits find 4 to 8 percent of material spend leaks out through unnoticed price inflation, freight surcharges, and uncredited returns nobody catches in time.
+
+A few tools already exist in this space, but each one misses a piece of the problem. Kojo builds trade catalogs for mechanical, electrical, and plumbing suppliers, not raw materials like concrete or steel. Toolbx is an online storefront owned by the supplier, so a contractor working with many suppliers ends up with many separate logins. ProcurePro handles bidding and subcontract paperwork but stops once the purchase order is signed. Procore does almost everything, but it is priced by yearly construction volume and does not track materials at the line item level. None of them give a contractor one simple way to compare suppliers by price and track record together.
+
+## Features
+
+Contract is four parts working together.
+
+**Supplier Import**
+A contractor uploads the spreadsheet they already keep their suppliers in, in whatever format it is already in. Contract reads the header row and suggests which column matches which field, price, capacity, delivery rate, and so on, so the contractor confirms the mapping instead of retyping every supplier by hand.
+
+**Supplier Directory**
+Contractors add and manage their suppliers in one place. Suppliers list what materials they sell, their prices, how much they can produce, and their delivery rate per kilometer.
+
+**Project Sourcing**
+For each project, a contractor lists what materials they need. Contract shows every matching supplier with the total landed cost, price plus delivery, so contractors compare real numbers instead of just a quoted unit price.
+
+**Performance Rating**
+After a delivery, the project manager rates the supplier on things like on time delivery and correct quantity. Over time this builds a performance score for each supplier that gets factored into future rankings alongside price.
+
+## Organization Chart
+
+This is the page map for the MVP, showing which page leads to which.
+
+```mermaid
+graph TD
+A[Homepage] --> B(Login)
+A --> C(Sign Up)
+A --> D(Dashboard)
+A --> E(Supplier Portal)
+A --> F(Help and Support)
+D --> D1(Supplier Directory)
+D --> D2(Projects)
+D --> D3(Account Settings)
+D1 --> D1a(Import Spreadsheet)
+D1 --> D1b(Supplier Profile)
+D2 --> D2a(New Project)
+D2 --> D2b(Project Detail)
+D2b --> D2b1(Material Requirements)
+D2b --> D2b2(Compare Suppliers)
+D2b --> D2b3(Rate Delivery)
+E --> E1(My Catalog and Pricing)
+E --> E2(Account Settings)
+```
+
+**Dashboard** is what a GC Admin or GC Project Manager lands on after login. **Supplier Portal** is the separate, simpler side a Material Supplier logs into to manage their own catalog and pricing, nothing else. Everything under **Project Detail** is where the actual sourcing decision happens, from listing what a project needs down to rating the delivery afterward.
+
+## Use Case Diagram
+
+```mermaid
+graph LR
+    subgraph ActorsGC[" "]
+        direction TB
+        GCAdmin["GC Admin"]
+        GCPM["GC Project<br/>Manager"]
+        GCExec["GC Executive"]
+    end
+
+    subgraph SYS["Supplier Sourcing and Rating System"]
+        UC3(("Create or Manage<br/>Project"))
+        UC4(("Define Material<br/>Requirements"))
+        UC5(("Compare and Rank<br/>Suppliers"))
+        UC9(("Place Order"))
+        UC6(("Rate Supplier<br/>After Delivery"))
+        UC10(("Confirm Delivery"))
+        UC1(("Manage Supplier<br/>Directory"))
+        UC2(("Manage Material<br/>Catalog and Pricing"))
+        UC7(("View Vendor<br/>Scorecard"))
+        UC8(("Flag or Blacklist<br/>Supplier"))
+        UC11(("Import Supplier<br/>Spreadsheet"))
+    end
+
+    subgraph ActorsMS[" "]
+        direction TB
+        MS["Material<br/>Supplier"]
+    end
+
+    GCPM --> UC3
+    GCPM --> UC4
+    GCPM --> UC5
+    GCPM --> UC9
+    GCPM --> UC6
+    GCPM --> UC10
+    GCAdmin --> UC1
+    GCAdmin --> UC8
+    GCAdmin --> UC11
+    GCExec --> UC7
+    MS --> UC2
+
+    UC5 -. includes .-> UC2
+    UC5 -. includes .-> UC7
+    UC6 -. extends .-> UC7
+    UC9 -. includes .-> UC5
+    UC10 -. extends .-> UC6
+    UC11 -. includes .-> UC1
+```
+
+## MVP Scope
+
+The MVP goal is to prove the core value proposition, pick a supplier for a material based on real landed cost and real performance, not guesswork, with the smallest set of features that make that judgment possible and trustworthy.
+
+**What's in**
+
+- Supplier directory, create, update, and deactivate
+- Spreadsheet import with column mapping, including a basic suggested match based on header text
+- Project creation with a basic material requirement list
+- Supplier entered catalog, material, price per unit, capacity, delivery rate
+- Side by side sourcing comparison with computed landed cost, filterable by price, distance, or rating
+- A simple post delivery rating that feeds a basic price plus rating ranking score
+
+**What's out for now**
+
+- Full Kanban or Gantt project management, a well solved problem with tools already built for it
+- Remembering a contractor's column mapping for their next upload
+- A formal order and delivery confirmation workflow
+- The full four part weighted score, quality, delivery, commercial, and safety
+- Blacklisting and probation status
+- Schedule syncing, embedded financing, and other later phase ideas from the roadmap
+
+## Project Status
+
+This repository currently holds the requirements analysis, business plan, and diagrams for Contract. Implementation has not started yet.
+
+## Team
+
+Dimas Dermawan | M11402825, 陳韋翰 | M11505112
