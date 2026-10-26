@@ -237,12 +237,14 @@ The full ER diagram with MVP and Full Scope marked is in [ERModel.md](ERModel.md
 | **`projects`** | MVP | `id`, `org_id`, `name`, `location`, `tax_rate`, `created_by_user_id` | Project master data table. |
 | **`categories`** | MVP | `id`, `name` | Material groups such as Concrete or Steel. |
 | **`project_supplier_distances`** | MVP | `project_id`, `supplier_id`, `distance_km` | Distance from each supplier to each project. |
-| **`master_materials`**| MVP | `id`, `category_id`, `standard_name`, `unit` | Standardized raw material catalog master. |
-| **`suppliers`** | MVP | `id`, `org_id`, `company_name`, `license_no`, `status` | Supplier directory profiles. |
+| **`master_materials`**| MVP | `id`, `category_id`, `standard_name`, `unit`, plus Full Scope `material_code`, `market_price_avg`, `market_price_stdev`, `market_sample_cnt` | Standardized raw material catalog master. |
+| **`suppliers`** | MVP | `id`, `org_id`, `company_name`, `license_no`, `status`, plus Full Scope `trade_name`, `phone`, `email`, `address`, `description` | Supplier directory profiles. |
 | **`supplier_catalogs`**| MVP | `id`, `supplier_id`, `material_id`, `unit_price`, `capacity`, `delivery_rate_km` | 3NF normalized mapping for supplier quotes and freight rates. |
 | **`project_requirements`**| MVP | `id`, `project_id`, `material_id`, `required_quantity` | Detailed material quantity requirements per project. |
 | **`orders`** | MVP | `id`, `project_id`, `supplier_id`, `catalog_id`, `placed_by_user_id`, `quantity`, `version_id`, `total_landed_cost`, `status` | Purchase orders with optimistic concurrency locking (`version_id`). |
 | **`ratings`** | MVP | `id`, `order_id`, `created_by_user_id`, `punctuality_score`, `quantity_score` | Post-delivery performance rating tied to an order. |
+| **`supplier_notes`** | Full Scope | `id`, `supplier_id`, `note` | One note per row about a supplier. |
+| **`price_history`** | Full Scope | `id`, `supplier_id`, `material_id`, `quantity`, `unit_price`, `discount_pct`, `total_price`, `transacted_on`, `note` | Past purchases used to check new quotes. |
 | **`delivery_proofs`** | Full Scope | `id`, `order_id`, `uploaded_by_user_id`, `photo_url`, `delivered_quantity` | Delivery photo and the quantity that really arrived. |
 | **`supplier_status_history`** | Full Scope | `id`, `supplier_id`, `changed_by_user_id`, `status`, `reason`, `changed_at` | Flag, probation, and blacklist changes. |
 | **`column_mappings`** | Full Scope | `id`, `org_id`, `source_header`, `target_field` | Remembered spreadsheet column mapping. |
