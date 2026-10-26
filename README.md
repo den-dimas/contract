@@ -14,6 +14,15 @@ Materials make up 40 to 60 percent of a construction project's cost, but general
 
 A few tools already exist in this space, but each one misses a piece of the problem. Kojo builds trade catalogs for mechanical, electrical, and plumbing suppliers, not raw materials like concrete or steel. Toolbx is an online storefront owned by the supplier, so a contractor working with many suppliers ends up with many separate logins. ProcurePro handles bidding and subcontract paperwork but stops once the purchase order is signed. Procore does almost everything, but it is priced by yearly construction volume and does not track materials at the line item level. None of them give a contractor one simple way to compare suppliers by price and track record together.
 
+## Scope Legend
+
+Every feature, use case, and table in this repository is tagged with its release scope.
+
+| Tag | Meaning |
+| :--- | :--- |
+| 🟢 **[MVP]** | Built in the first release. It proves the core idea. |
+| 🔵 **[Full Scope]** | Planned for later. Not built in the first release. |
+
 ## Features
 
 Contract is four parts working together.
@@ -80,6 +89,11 @@ graph LR
         MS["Material<br/>Supplier"]
     end
 
+    classDef mvp fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+    classDef full fill:#dbeafe,stroke:#2563eb,stroke-width:2px,stroke-dasharray:5 5
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC9,UC11 mvp
+    class UC7,UC8,UC10 full
+
     GCPM --> UC3
     GCPM --> UC4
     GCPM --> UC5
@@ -99,6 +113,22 @@ graph LR
     UC10 -. extends .-> UC6
     UC11 -. includes .-> UC1
 ```
+
+Green circles are **MVP** use cases. Blue dashed circles are **Full Scope** use cases.
+
+| Use case | Actor | Scope |
+| :--- | :--- | :--- |
+| Manage Supplier Directory | GC Admin | 🟢 MVP |
+| Import Supplier Spreadsheet | GC Admin | 🟢 MVP |
+| Manage Material Catalog and Pricing | Material Supplier | 🟢 MVP |
+| Create or Manage Project | GC Project Manager | 🟢 MVP |
+| Define Material Requirements | GC Project Manager | 🟢 MVP |
+| Compare and Rank Suppliers | GC Project Manager | 🟢 MVP |
+| Place Order | GC Project Manager | 🟢 MVP |
+| Rate Supplier After Delivery | GC Project Manager | 🟢 MVP |
+| Confirm Delivery | GC Project Manager | 🔵 Full Scope |
+| View Vendor Scorecard | GC Executive | 🔵 Full Scope |
+| Flag or Blacklist Supplier | GC Admin | 🔵 Full Scope |
 
 ## MVP Scope
 
@@ -124,7 +154,20 @@ The MVP goal is to prove the core value proposition, pick a supplier for a mater
 
 ## Project Status
 
-This repository currently holds the requirements analysis, business plan, and diagrams for Contract. Implementation has not started yet.
+This repository holds the requirements analysis, business plan, diagrams, data model, and the MVP web app for Contract. The data model is in [ERModel.md](ERModel.md) and the database scripts are in `sql/`. The web app is built with Express, Handlebars, MySQL, and HTMX. See [Run the App](#run-the-app).
+
+## Run the App
+
+You need Node.js 20 or newer and Docker.
+
+```bash
+docker compose up -d
+npm install
+cp .env.example .env
+npm start
+```
+
+Open http://localhost:3000 and sign up. The first user of a company becomes its admin. Run the tests with `npm test`.
 
 ## Team
 
@@ -143,7 +186,7 @@ To support multi-person team collaboration within a single enterprise while main
    * **Additional User Seats:** Adding new team members beyond the plan's base quota automatically incurs an additional monthly seat fee (e.g., +$15/user/month).
    * Organization Admins can manage seats, send user invitations, and adjust license quotas directly in the Billing Dashboard.
 3. **Comprehensive User Audit Logs (Activity & Modification Tracking) [Full Scope]:**
-   * **Full Traceability:** Every creation, update, or deletion action across the platform—including order placements, catalog updates, price modifications, and post-delivery ratings—is permanently logged.
+   * **Full Traceability:** Every creation, update, or deletion action across the platform is permanently logged. This covers order placements, catalog updates, price modifications, and post-delivery ratings.
    * **Log Details:** Each record captures the exact **User ID, User Name, Timestamp, IP Address, Modified Module, and Action Type (Create / Update / Delete)** along with before-and-after data diffs.
    * **Audit Log Viewer:** Company Admins and Executives can query historical activity logs to investigate discrepancy issues and ensure strict operational governance.
 4. **Role-Based Access Control (RBAC):**
@@ -170,29 +213,39 @@ To support multi-person team collaboration within a single enterprise while main
 ##  Technical Architecture & System Specs
 
 ### Tech Stack Selection (MVP)
-- **Frontend:** Next.js (React), Tailwind CSS, Mermaid.js
-- **Backend:** Node.js (Express) / Python FastAPI
-- **Database:** PostgreSQL (Relational schema normalized to 3NF, with multi-tenant isolation, views, indexes, and audit tables)
-- **Authentication & Billing:** NextAuth.js / Auth0 + Stripe API (Seat subscription management)
-- 
+- **Frontend:** Handlebars templates, Bootstrap, HTMX
+- **Backend:** Node.js (Express)
+- **Database:** MySQL (schema normalized to 3NF, with tenant separation by `org_id`, views, indexes, and audit tables)
+- **Authentication:** Signed cookies, passwords hashed with scrypt
+- **Billing [Full Scope]:** Stripe API for seat subscriptions
+
 ### Landed Cost Calculation Logic
-$$\text{Total Landed Cost} = (\text{Unit Material Price} \times \text{Quantity}) + (\text{Distance in km} \times \text{Delivery Rate per km}) + \text{Tax}$$
+$$\text{Total Landed Cost} = (\text{Material} + \text{Delivery}) \times (1 + \text{Tax Rate})$$
+
+Material is the unit price times the quantity. Delivery is the distance in km times the delivery rate per km. The tax rate is set on each project, 5 percent by default.
 
 ---
 
 ## Database Schema Design (3NF Normalized)
 
+The full ER diagram with MVP and Full Scope marked is in [ERModel.md](ERModel.md). The scripts are `sql/schema.sql` and `sql/seed.sql`.
+
 | Table Name | Scope | Primary Fields | Description |
 | :--- | :--- | :--- | :--- |
-| **`organizations`** | MVP | `id`, `company_name`, `tenant_id`, `plan_tier`, `max_seats`, `active_seats` | Enterprise tenant master data. |
-| **`users`** | MVP | `id`, `org_id`, `email`, `role`, `name`, `seat_status` | User accounts mapped to corporate roles and seats. |
-| **`projects`** | MVP | `id`, `org_id`, `name`, `location`, `created_by_user_id` | Project master data table. |
-| **`master_materials`**| MVP | `id`, `category`, `standard_name`, `unit` | Standardized raw material catalog master. |
-| **`suppliers`** | MVP | `id`, `company_name`, `license_no`, `rating_score` | Supplier directory profiles. |
+| **`organizations`** | MVP | `id`, `company_name`, `plan_tier`, `max_seats` | Enterprise tenant master data. |
+| **`users`** | MVP | `id`, `org_id`, `supplier_id`, `email`, `name`, `password_hash`, `role`, `seat_status` | User accounts mapped to corporate roles and seats. |
+| **`projects`** | MVP | `id`, `org_id`, `name`, `location`, `tax_rate`, `created_by_user_id` | Project master data table. |
+| **`categories`** | MVP | `id`, `name` | Material groups such as Concrete or Steel. |
+| **`project_supplier_distances`** | MVP | `project_id`, `supplier_id`, `distance_km` | Distance from each supplier to each project. |
+| **`master_materials`**| MVP | `id`, `category_id`, `standard_name`, `unit` | Standardized raw material catalog master. |
+| **`suppliers`** | MVP | `id`, `org_id`, `company_name`, `license_no`, `status` | Supplier directory profiles. |
 | **`supplier_catalogs`**| MVP | `id`, `supplier_id`, `material_id`, `unit_price`, `capacity`, `delivery_rate_km` | 3NF normalized mapping for supplier quotes and freight rates. |
 | **`project_requirements`**| MVP | `id`, `project_id`, `material_id`, `required_quantity` | Detailed material quantity requirements per project. |
-| **`orders`** | MVP | `id`, `project_id`, `supplier_id`, `catalog_id`, `version_id`, `total_landed_cost`, `status` | Purchase orders with optimistic concurrency locking (`version_id`). |
+| **`orders`** | MVP | `id`, `project_id`, `supplier_id`, `catalog_id`, `placed_by_user_id`, `quantity`, `version_id`, `total_landed_cost`, `status` | Purchase orders with optimistic concurrency locking (`version_id`). |
 | **`ratings`** | MVP | `id`, `order_id`, `created_by_user_id`, `punctuality_score`, `quantity_score` | Post-delivery performance rating tied to an order. |
+| **`delivery_proofs`** | Full Scope | `id`, `order_id`, `uploaded_by_user_id`, `photo_url`, `delivered_quantity` | Delivery photo and the quantity that really arrived. |
+| **`supplier_status_history`** | Full Scope | `id`, `supplier_id`, `changed_by_user_id`, `status`, `reason`, `changed_at` | Flag, probation, and blacklist changes. |
+| **`column_mappings`** | Full Scope | `id`, `org_id`, `source_header`, `target_field` | Remembered spreadsheet column mapping. |
 | **`audit_logs`** | Full Scope | `id`, `org_id`, `user_id`, `action_type`, `entity_type`, `entity_id`, `changes_json`, `timestamp`, `ip_address` | System-wide immutable audit log. |
 
 ### Database Optimization & Integrity Strategies
