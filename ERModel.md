@@ -35,12 +35,21 @@ erDiagram
         int category_id FK
         string standard_name UK
         string unit
+        string material_code UK "FULL, id in the source data"
+        decimal market_price_avg "FULL"
+        decimal market_price_stdev "FULL"
+        int market_sample_cnt "FULL"
     }
     SUPPLIERS {
         int id PK
         int org_id FK
         string company_name
         string license_no
+        string trade_name "FULL"
+        string phone "FULL"
+        string email "FULL"
+        string address "FULL"
+        string description "FULL"
         string status "active or inactive"
     }
     SUPPLIER_CATALOGS {
@@ -117,6 +126,22 @@ erDiagram
         string reason
         datetime changed_at
     }
+    SUPPLIER_NOTES {
+        int id PK
+        int supplier_id FK
+        string note
+    }
+    PRICE_HISTORY {
+        int id PK
+        int supplier_id FK
+        int material_id FK
+        decimal quantity
+        decimal unit_price
+        decimal discount_pct
+        decimal total_price
+        date transacted_on
+        string note
+    }
     COLUMN_MAPPINGS {
         int id PK
         int org_id FK
@@ -147,11 +172,14 @@ erDiagram
     ORDERS ||--o| DELIVERY_PROOFS : "is proven by"
     SUPPLIERS ||--o{ SUPPLIER_STATUS_HISTORY : "has status changes"
     ORGANIZATIONS ||--o{ COLUMN_MAPPINGS : remembers
+    SUPPLIERS ||--o{ SUPPLIER_NOTES : "has notes"
+    SUPPLIERS ||--o{ PRICE_HISTORY : "sold in"
+    MASTER_MATERIALS ||--o{ PRICE_HISTORY : "was priced in"
 
     classDef mvp stroke:#16a34a,stroke-width:3px
     classDef full stroke:#2563eb,stroke-width:2px,stroke-dasharray:5 5
     class ORGANIZATIONS,USERS,CATEGORIES,MASTER_MATERIALS,SUPPLIERS,SUPPLIER_CATALOGS,PROJECTS,PROJECT_REQUIREMENTS,PROJECT_SUPPLIER_DISTANCES,ORDERS,RATINGS mvp
-    class AUDIT_LOGS,DELIVERY_PROOFS,SUPPLIER_STATUS_HISTORY,COLUMN_MAPPINGS full
+    class AUDIT_LOGS,DELIVERY_PROOFS,SUPPLIER_STATUS_HISTORY,COLUMN_MAPPINGS,SUPPLIER_NOTES,PRICE_HISTORY full
 ```
 
 ## Entities
@@ -173,8 +201,14 @@ erDiagram
 | `delivery_proofs` | 🔵 Full | Delivery photo and the quantity that really arrived. |
 | `supplier_status_history` | 🔵 Full | Flag, probation and blacklist changes with the reason. |
 | `column_mappings` | 🔵 Full | Remembers how a contractor mapped spreadsheet columns last time. |
+| `supplier_notes` | 🔵 Full | One short note per row about a supplier, such as "Licensed and insured". |
+| `price_history` | 🔵 Full | Past purchases with quantity, price, discount and date. Used to check new quotes against real prices. |
 
-Full Scope attributes on MVP entities: `ratings.quality_score` and `ratings.safety_score` (the full four part score).
+Full Scope attributes on MVP entities:
+
+- `ratings.quality_score` and `ratings.safety_score` (the full four part score).
+- `suppliers.trade_name`, `phone`, `email`, `address` and `description` (contact details and profile text).
+- `master_materials.material_code` (the id in the source data), `market_price_avg`, `market_price_stdev` and `market_sample_cnt` (market price statistics).
 
 ## Relationships and cardinality
 
@@ -185,6 +219,8 @@ Full Scope attributes on MVP entities: `ratings.quality_score` and `ratings.safe
 | supplier to user | 0 or 1 to many | A supplier can have login accounts. A normal contractor user has none. |
 | category to material | 1 to many | Every material sits in exactly one category. |
 | supplier to catalog | 1 to many | A supplier lists many materials. |
+| supplier to notes | 1 to many | A note belongs to one supplier. The same note is stored once per supplier. |
+| supplier and material to price history | 1 to many each | Every past purchase belongs to one supplier and one material. |
 | material to catalog | 1 to many | Many suppliers quote the same material. A supplier quotes a material only once (unique pair). |
 | project to requirements | 1 to many | A material appears only once per project (unique pair). |
 | project and supplier to distance | many to many | One distance for each project and supplier pair. |
@@ -200,4 +236,5 @@ Full Scope attributes on MVP entities: `ratings.quality_score` and `ratings.safe
   - `suppliers.rating_score` was removed. The average rating is calculated from `ratings` by the view `v_supplier_rankings`.
   - `organizations.active_seats` was removed. It is a count of `users`.
   - `master_materials` holds the category as `category_id`, not as a name.
+  - `supplier_notes` is its own table. The source data kept up to four notes in one text column separated by semicolons, which breaks first normal form.
   - `orders.total_landed_cost` is kept on purpose as a snapshot of the price at order time. It must not change when a supplier later edits a price.

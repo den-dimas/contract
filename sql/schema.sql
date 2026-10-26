@@ -14,9 +14,15 @@ CREATE TABLE suppliers (
   org_id INT UNSIGNED NOT NULL,
   company_name VARCHAR(120) NOT NULL,
   license_no VARCHAR(40) NULL,
+  trade_name VARCHAR(120) NULL,
+  phone VARCHAR(40) NULL,
+  email VARCHAR(160) NULL,
+  address VARCHAR(200) NULL,
+  description VARCHAR(200) NULL,
   status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_suppliers_org FOREIGN KEY (org_id) REFERENCES organizations (id),
+  INDEX idx_suppliers_license (license_no),
   CONSTRAINT uq_suppliers_org_name UNIQUE (org_id, company_name)
 );
 
@@ -41,9 +47,21 @@ CREATE TABLE categories (
 CREATE TABLE master_materials (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   category_id INT UNSIGNED NOT NULL,
-  standard_name VARCHAR(100) NOT NULL UNIQUE,
+  standard_name VARCHAR(200) NOT NULL UNIQUE,
   unit VARCHAR(20) NOT NULL,
+  material_code CHAR(8) NULL UNIQUE,
+  market_price_avg DECIMAL(12, 2) NULL,
+  market_price_stdev DECIMAL(12, 2) NULL,
+  market_sample_cnt INT UNSIGNED NULL,
   CONSTRAINT fk_materials_category FOREIGN KEY (category_id) REFERENCES categories (id)
+);
+
+CREATE TABLE supplier_notes (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  supplier_id INT UNSIGNED NOT NULL,
+  note VARCHAR(120) NOT NULL,
+  CONSTRAINT fk_notes_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id) ON DELETE CASCADE,
+  CONSTRAINT uq_notes_pair UNIQUE (supplier_id, note)
 );
 
 CREATE TABLE supplier_catalogs (
@@ -118,6 +136,21 @@ CREATE TABLE ratings (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_ratings_order FOREIGN KEY (order_id) REFERENCES orders (id),
   CONSTRAINT fk_ratings_user FOREIGN KEY (created_by_user_id) REFERENCES users (id)
+);
+
+CREATE TABLE price_history (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  supplier_id INT UNSIGNED NOT NULL,
+  material_id INT UNSIGNED NOT NULL,
+  quantity DECIMAL(14, 2) NOT NULL CHECK (quantity > 0),
+  unit_price DECIMAL(12, 2) NOT NULL CHECK (unit_price >= 0),
+  discount_pct DECIMAL(5, 2) NOT NULL DEFAULT 0 CHECK (discount_pct BETWEEN 0 AND 100),
+  total_price DECIMAL(16, 2) NOT NULL,
+  transacted_on DATE NOT NULL,
+  note VARCHAR(200) NULL,
+  CONSTRAINT fk_history_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id),
+  CONSTRAINT fk_history_material FOREIGN KEY (material_id) REFERENCES master_materials (id),
+  INDEX idx_history_material_date (material_id, transacted_on)
 );
 
 CREATE VIEW v_supplier_ratings AS
