@@ -1,0 +1,52 @@
+{{> flash}}
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{project.name}}</h1>
+    <div class="text-muted">{{project.location}} - tax {{project.tax_percent}}%</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-primary" href="/projects/{{project.id}}/compare">Compare suppliers</a>
+    <a class="btn btn-outline-secondary" href="/projects/{{project.id}}/edit">Edit</a>
+    <form action="/projects/{{project.id}}/delete" method="POST" onsubmit="return confirm('Delete this project?')">
+      <button class="btn btn-outline-danger">Delete</button>
+    </form>
+  </div>
+</div>
+
+<h2 class="h5 mt-4">Material requirements</h2>
+<div id="req-error" class="text-danger small mb-2"></div>
+<table class="table align-middle">
+  <thead><tr><th>Category</th><th>Material</th><th style="width: 220px">Quantity</th><th>Unit</th><th></th></tr></thead>
+  <tbody id="req-rows">
+    {{#each requirements}}{{> requirementRow}}{{/each}}
+  </tbody>
+</table>
+<form class="row g-2 mb-4"
+      hx-post="/projects/{{project.id}}/requirements" hx-target="#req-rows" hx-swap="beforeend"
+      hx-on::before-request="document.getElementById('req-error').textContent = ''"
+      hx-on::after-request="if (!event.detail.xhr.getResponseHeader('HX-Retarget')) this.reset()">
+  <div class="col-md-5">
+    <select class="form-select" name="material_id" required>
+      <option value="">Choose a material</option>
+      {{#each materialGroups}}
+      <optgroup label="{{category}}">
+        {{#each materials}}<option value="{{id}}">{{standard_name}} ({{unit}})</option>{{/each}}
+      </optgroup>
+      {{/each}}
+    </select>
+  </div>
+  <div class="col-md-3"><input class="form-control" type="number" name="quantity" min="0.01" step="0.01" placeholder="Quantity" required></div>
+  <div class="col-md-2"><button class="btn btn-outline-primary">Add</button></div>
+</form>
+
+<h2 class="h5 mt-4">Orders</h2>
+{{#if orders.length}}
+<table class="table align-middle">
+  <thead><tr><th>Supplier</th><th>Material</th><th>Quantity</th><th>Total landed cost</th><th>Status</th><th>Rating</th><th></th></tr></thead>
+  <tbody>
+    {{#each orders}}{{> orderRow}}{{/each}}
+  </tbody>
+</table>
+{{else}}
+<p class="text-muted">No orders yet. Compare suppliers to place one.</p>
+{{/if}}

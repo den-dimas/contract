@@ -1,0 +1,30 @@
+<tr>
+  <td>{{supplier}}</td>
+  <td>{{material}}</td>
+  <td>{{quantity}} {{unit}}</td>
+  <td>{{money total_landed_cost}}</td>
+  <td>
+    {{#if (eq status 'delivered')}}<span class="badge text-bg-success">Delivered</span>
+    {{else}}<span class="badge text-bg-warning">Placed</span>{{/if}}
+  </td>
+  <td>
+    {{#if rating_id}}
+    <div>On time {{stars punctuality_score}} / Quantity {{stars quantity_score}}</div>
+    {{#if comment}}<div class="small text-muted">{{comment}}</div>{{/if}}
+    <a href="/projects/{{project_id}}/orders/{{id}}/rating/edit">Edit</a>
+    <form class="d-inline" action="/projects/{{project_id}}/orders/{{id}}/rating/delete" method="POST" onsubmit="return confirm('Delete this rating?')">
+      <button class="btn btn-link btn-sm p-0 text-danger">Delete</button>
+    </form>
+    {{else if (eq status 'delivered')}}
+    <a href="/projects/{{project_id}}/orders/{{id}}/rating/new">Rate delivery</a>
+    {{else}}<span class="text-muted">Rate after delivery</span>{{/if}}
+  </td>
+  <td>
+    {{#if (eq status 'placed')}}
+    <form action="/projects/{{project_id}}/orders/{{id}}/deliver" method="POST">
+      <input type="hidden" name="version_id" value="{{version_id}}">
+      <button class="btn btn-sm btn-outline-success">Mark delivered</button>
+    </form>
+    {{/if}}
+  </td>
+</tr>

@@ -1,0 +1,11 @@
+{{> flash}}
+<h1 class="h3">Compare suppliers</h1>
+<div class="text-muted mb-3">{{project.name}} - tax {{percent project.tax_rate}}</div>
+<div class="btn-group mb-3">
+  <a class="btn btn-sm {{#if (eq sort 'rank')}}btn-primary{{else}}btn-outline-primary{{/if}}" href="/projects/{{project.id}}/compare?sort=rank">Best overall</a>
+  <a class="btn btn-sm {{#if (eq sort 'price')}}btn-primary{{else}}btn-outline-primary{{/if}}" href="/projects/{{project.id}}/compare?sort=price">Lowest price</a>
+  <a class="btn btn-sm {{#if (eq sort 'distance')}}btn-primary{{else}}btn-outline-primary{{/if}}" href="/projects/{{project.id}}/compare?sort=distance">Nearest</a>
+  <a class="btn btn-sm {{#if (eq sort 'rating')}}btn-primary{{else}}btn-outline-primary{{/if}}" href="/projects/{{project.id}}/compare?sort=rating">Best rated</a>
+</div>
+<a class="btn btn-link mb-3" href="/projects/{{project.id}}">Back to project</a>
+<div id="compare">{{> compareBody}}</div>
