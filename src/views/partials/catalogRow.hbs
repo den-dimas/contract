@@ -1,0 +1,13 @@
+<tr id="catalog-{{id}}">
+  <td>{{standard_name}} <span class="text-muted small">per {{unit}}</span>
+    {{#if error}}<div class="text-danger small">{{error}}</div>{{/if}}
+    {{#if saved}}<div class="text-success small">Saved.</div>{{/if}}
+  </td>
+  <td><input class="form-control form-control-sm" type="number" step="0.01" min="0" name="unitPrice" value="{{unit_price}}"></td>
+  <td><input class="form-control form-control-sm" type="number" step="0.01" min="0" name="capacity" value="{{capacity}}"></td>
+  <td><input class="form-control form-control-sm" type="number" step="0.01" min="0" name="deliveryRateKm" value="{{delivery_rate_km}}"></td>
+  <td class="text-end text-nowrap">
+    <button class="btn btn-outline-primary btn-sm" hx-post="/suppliers/{{supplier_id}}/catalog/{{id}}" hx-include="closest tr" hx-target="#catalog-{{id}}" hx-swap="outerHTML">Save</button>
+    <button class="btn btn-outline-danger btn-sm" hx-post="/suppliers/{{supplier_id}}/catalog/{{id}}/delete" hx-confirm="Delete this catalog row?" hx-target="#catalog-{{id}}" hx-swap="outerHTML">Delete</button>
+  </td>
+</tr>

@@ -1,0 +1,14 @@
+<tr id="supplier-{{id}}">
+  <td><a href="/suppliers/{{id}}">{{company_name}}</a></td>
+  <td>{{#if license_no}}{{license_no}}{{else}}-{{/if}}</td>
+  <td>{{catalog_cnt}}</td>
+  <td><span class="badge {{#if (eq status 'active')}}text-bg-success{{else}}text-bg-secondary{{/if}}">{{status}}</span></td>
+  <td class="text-end">
+    <a class="btn btn-outline-secondary btn-sm" href="/suppliers/{{id}}/edit">Edit</a>
+    {{#if (eq status 'active')}}
+    <button class="btn btn-outline-danger btn-sm" hx-post="/suppliers/{{id}}/deactivate" hx-target="#supplier-{{id}}" hx-swap="outerHTML">Deactivate</button>
+    {{else}}
+    <button class="btn btn-outline-success btn-sm" hx-post="/suppliers/{{id}}/reactivate" hx-target="#supplier-{{id}}" hx-swap="outerHTML">Reactivate</button>
+    {{/if}}
+  </td>
+</tr>

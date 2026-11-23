@@ -1,0 +1,31 @@
+{{> flash}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h3 mb-0">{{supplier.company_name}}</h1>
+    <span class="text-muted">License: {{#if supplier.license_no}}{{supplier.license_no}}{{else}}none{{/if}}</span>
+    <span class="badge {{#if (eq supplier.status 'active')}}text-bg-success{{else}}text-bg-secondary{{/if}}">{{supplier.status}}</span>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="/suppliers/{{supplier.id}}/edit">Edit</a>
+    <a class="btn btn-outline-secondary" href="/suppliers">Back</a>
+  </div>
+</div>
+<h2 class="h5">Catalog</h2>
+<table class="table align-middle">
+  <thead><tr><th>Material</th><th>Unit price</th><th>Capacity</th><th>Delivery rate per km</th><th></th></tr></thead>
+  <tbody>{{#each catalog}}{{> catalogRow}}{{/each}}</tbody>
+</table>
+{{#unless catalog.length}}<p class="text-muted">This supplier has no materials yet.</p>{{/unless}}
+<h2 class="h5 mt-4">Add material</h2>
+<form action="/suppliers/{{supplier.id}}/catalog" method="POST" class="row g-2">
+  <div class="col-md-3">
+    <select class="form-select" name="materialId" required>
+      <option value="">Pick a material</option>
+      {{#each materials}}<option value="{{id}}">{{standard_name}} ({{unit}})</option>{{/each}}
+    </select>
+  </div>
+  <div class="col-md-2"><input class="form-control" type="number" step="0.01" min="0" name="unitPrice" placeholder="Unit price" required></div>
+  <div class="col-md-2"><input class="form-control" type="number" step="0.01" min="0" name="capacity" placeholder="Capacity" required></div>
+  <div class="col-md-3"><input class="form-control" type="number" step="0.01" min="0" name="deliveryRateKm" placeholder="Delivery rate per km" required></div>
+  <div class="col-md-2"><button class="btn btn-primary w-100">Add</button></div>
+</form>
