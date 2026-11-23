@@ -1,0 +1,20 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary" hx-boost="true" hx-target="#main">
+  <div class="container">
+    <a class="navbar-brand" href="{{#if user}}/dashboard{{else}}/{{/if}}">Contract</a>
+    <ul class="navbar-nav me-auto">
+      {{#if user}}
+      <li class="nav-item"><a class="nav-link" href="/suppliers">Suppliers</a></li>
+      <li class="nav-item"><a class="nav-link" href="/projects">Projects</a></li>
+      {{/if}}
+    </ul>
+    <div class="d-flex align-items-center gap-2">
+      {{#if user}}
+      <span class="text-muted small">{{user.name}} ({{user.role}})</span>
+      <form action="/logout" method="POST" hx-boost="false"><button class="btn btn-outline-secondary btn-sm">Log out</button></form>
+      {{else}}
+      <a class="btn btn-outline-primary btn-sm" href="/login">Log in</a>
+      <a class="btn btn-primary btn-sm" href="/signup">Sign up</a>
+      {{/if}}
+    </div>
+  </div>
+</nav>
