@@ -1,0 +1,23 @@
+{{> flash}}
+<h1 class="h3">{{title}}</h1>
+<div class="text-muted mb-3">{{order.supplier}} - {{order.material}}</div>
+{{#if error}}<div class="alert alert-danger">{{error}}</div>{{/if}}
+<form action="/projects/{{project.id}}/orders/{{order.id}}/rating{{#if action}}/{{action}}{{/if}}" method="POST" class="col-md-6">
+  <div class="mb-3">
+    <label class="form-label">On time delivery (1 to 5)</label>
+    <select class="form-select" name="punctuality_score" required>
+      <option value="">Choose</option>
+      {{#each scores}}<option value="{{this}}" {{#if (eq this @root.form.punctuality_score)}}selected{{/if}}>{{this}}</option>{{/each}}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Correct quantity (1 to 5)</label>
+    <select class="form-select" name="quantity_score" required>
+      <option value="">Choose</option>
+      {{#each scores}}<option value="{{this}}" {{#if (eq this @root.form.quantity_score)}}selected{{/if}}>{{this}}</option>{{/each}}
+    </select>
+  </div>
+  <div class="mb-3"><label class="form-label">Comment (optional)</label><textarea class="form-control" name="comment" maxlength="500" rows="3">{{form.comment}}</textarea></div>
+  <button class="btn btn-primary">Save rating</button>
+  <a class="btn btn-link" href="/projects/{{project.id}}">Cancel</a>
+</form>
