@@ -1,0 +1,24 @@
+{{> flash}}
+<h1 class="h3">Match your columns</h1>
+{{#if error}}<div class="alert alert-danger">{{error}}</div>{{/if}}
+<h2 class="h6">First rows of your file</h2>
+<div class="table-responsive">
+  <table class="table table-sm table-bordered">
+    <thead><tr>{{#each headers}}<th>{{this}}</th>{{/each}}</tr></thead>
+    <tbody>{{#each samples}}<tr>{{#each this}}<td>{{this}}</td>{{/each}}</tr>{{/each}}</tbody>
+  </table>
+</div>
+<form action="/suppliers/import" method="POST" class="col-md-6">
+  <textarea name="csv" hidden>{{csv}}</textarea>
+  {{#each fields}}
+  <div class="mb-3">
+    <label class="form-label">{{label}}{{#if isRequired}} (required){{/if}}</label>
+    <select class="form-select" name="{{../prefix}}{{key}}">
+      <option value="">Not in my file</option>
+      {{#each options}}<option value="{{idx}}" {{#if isSelected}}selected{{/if}}>{{name}}</option>{{/each}}
+    </select>
+  </div>
+  {{/each}}
+  <button class="btn btn-primary">Import</button>
+  <a class="btn btn-link" href="/suppliers/import">Start over</a>
+</form>

@@ -1,0 +1,16 @@
+{{> flash}}
+<h1 class="h3">Import suppliers</h1>
+<p class="text-muted">Paste CSV text or choose a CSV file. The first row must be the headers.</p>
+{{#if error}}<div class="alert alert-danger">{{error}}</div>{{/if}}
+<form action="/suppliers/import/preview" method="POST">
+  <div class="mb-3">
+    <label class="form-label">CSV file</label>
+    <input class="form-control" type="file" accept=".csv,text/csv" hx-on:change="this.files[0].text().then(text => htmx.find('#csv').value = text)">
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="csv">CSV text</label>
+    <textarea class="form-control font-monospace" id="csv" name="csv" rows="10" required>{{csv}}</textarea>
+  </div>
+  <button class="btn btn-primary">Preview</button>
+  <a class="btn btn-link" href="/suppliers">Cancel</a>
+</form>

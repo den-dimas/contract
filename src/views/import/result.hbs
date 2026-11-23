@@ -1,0 +1,12 @@
+{{> flash}}
+<h1 class="h3">Import result</h1>
+<div class="alert alert-success">{{imported}} row(s) imported.</div>
+{{#if hasFailures}}
+<h2 class="h6">Rows that were skipped</h2>
+<table class="table table-sm">
+  <thead><tr><th>Row</th><th>Reason</th></tr></thead>
+  <tbody>{{#each failures}}<tr><td>{{rowNumber}}</td><td>{{reason}}</td></tr>{{/each}}</tbody>
+</table>
+{{/if}}
+<a class="btn btn-primary" href="/suppliers">Back to suppliers</a>
+<a class="btn btn-outline-secondary" href="/suppliers/import">Import another file</a>
