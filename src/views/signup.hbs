@@ -1,0 +1,10 @@
+{{> flash}}
+<h1 class="h3">Create your company account</h1>
+{{#if error}}<div class="alert alert-danger">{{error}}</div>{{/if}}
+<form action="/signup" method="POST" class="col-md-5">
+  <div class="mb-3"><label class="form-label">Company name</label><input class="form-control" name="companyName" value="{{form.companyName}}" required></div>
+  <div class="mb-3"><label class="form-label">Your name</label><input class="form-control" name="name" value="{{form.name}}" required></div>
+  <div class="mb-3"><label class="form-label">Email</label><input class="form-control" type="email" name="email" value="{{form.email}}" required></div>
+  <div class="mb-3"><label class="form-label">Password (8 characters or more)</label><input class="form-control" type="password" name="password" minlength="8" required></div>
+  <button class="btn btn-primary">Sign up</button>
+</form>
